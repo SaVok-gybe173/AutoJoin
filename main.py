@@ -19,10 +19,8 @@ class TypedDictInfoProcess(TypedDict):
 
 class MoneyHighlighter(Highlighter):
     def highlight(self, text):
-       # Красим все '/' в зелёный
        for match in re.finditer(r'/', text.plain):
            text.stylize("bold blue", match.start(), match.end())
-       # Все '\' в синий (обратный слэш надо экранировать)
        for match in re.finditer(r'\\', text.plain):
            text.stylize("bold blue", match.start(), match.end())
 
@@ -63,6 +61,9 @@ def get_detailed_windows() -> list[TypedDictInfoProcess]:
     return windows
 
 def updateUsers():
+    """
+    Обновеление списка серверов
+    """
     global users, user
     print(f"{GREEN}[+]{RESET} Поиск окна...\n")
     users.clear()
