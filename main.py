@@ -11,13 +11,15 @@ import win32ui
 import win32con
 import win32process
 import pyautogui
-import re
-import time
 import ctypes
+import time
+import re
+import os
 try:
     ctypes.windll.user32.SetProcessDPIAware()
 except:
     pass   # для старых Windows можно использовать SetProcessDPIAwareness
+
 class TypedDictInfoProcess(TypedDict):
     title: str
     hwnd: int
@@ -34,6 +36,9 @@ class MoneyHighlighter(Highlighter):
        for match in re.finditer(r'\\', text.plain):
            text.stylize("bold blue", match.start(), match.end())
 
+MAIN_PATH = 'data'
+
+if not os.path.isdir(MAIN_PATH): os.mkdir(MAIN_PATH)
 
 RED = "\033[31m"
 GREEN = "\033[32m"
