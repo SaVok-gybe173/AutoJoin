@@ -1,6 +1,12 @@
+from pynput.mouse import Button, Controller
+from pyfiglet import Figlet
+from rich.highlighter import Highlighter
+from rich.console import Console
+from termcolor import cprint
+from typing import TypedDict
+
 import win32gui
 import win32process
-from typing import TypedDict
 
 class TypedDictInfoProcess(TypedDict):
     title: str
@@ -16,7 +22,10 @@ YELLOW = "\033[33m"
 BLUE = "\033[34m"
 RESET = "\033[0m"  # Сбрасываем цвет
 
-
+console = Console(highlighter=MoneyHighlighter())
+flr = Figlet(font='slant')  # Более стильный шрифт
+ascii_art = flr.renderText("Flicker")
+console.print(ascii_art, style="bold green")
 
 users: list[TypedDictInfoProcess] = []  # список окон с Gribland
 user: int = 0                           # Индекс
@@ -52,6 +61,27 @@ def updateUsers():
             users.append({"hwnd": win['hwnd'], "server": mass[-2], "user": mass[-1], "title": win['title'], "pid": win["pid"]})
             
     if len(users) == 0:
-        print("{GREEN}[+]{RESET}")
+        print("{RED}[-]{RESET} Не найден ни одино активное окно")
+    elif len(users) == 1:
+        print()
+        user = 0
+    else:
+        while True:
+            print()
+            print(f"{GREEN}[+]{RESET} Найдено несколько окон, подалуйста введите номер окна...")
+            for i, win in enumerate(users):
+                print(f"{BLUE}[+]{RESET} {i+1}. Сервер {win['server']}, игрок {win['user']}.")
+            num = input(f"{YELLOW}[+]{RESET} Число: ")
+            try:
+                num = int(num)
+                if len(users) < num:
+                    continue
+            except:
+                continue
+
+            user = num-1
+            print(f"{GREEN}[+]{RESET} Выбран игрок {users[num]['user']} на сервере {users[num]['server']}, HWND:{users[num]['hwnd']}")
+            break
 
 updateUsers()
+
