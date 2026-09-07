@@ -5,6 +5,7 @@ from rich.console import Console
 from termcolor import cprint
 from typing import TypedDict
 
+import re
 import win32gui
 import win32process
 
@@ -16,6 +17,15 @@ class TypedDictInfoProcess(TypedDict):
     server: str
     user: str
 
+class MoneyHighlighter(Highlighter):
+    def highlight(self, text):
+       # Красим все '/' в зелёный
+       for match in re.finditer(r'/', text.plain):
+           text.stylize("bold blue", match.start(), match.end())
+       # Все '\' в синий (обратный слэш надо экранировать)
+       for match in re.finditer(r'\\', text.plain):
+           text.stylize("bold blue", match.start(), match.end())
+
 RED = "\033[31m"
 GREEN = "\033[32m"
 YELLOW = "\033[33m"
@@ -24,8 +34,10 @@ RESET = "\033[0m"  # Сбрасываем цвет
 
 console = Console(highlighter=MoneyHighlighter())
 flr = Figlet(font='slant')  # Более стильный шрифт
-ascii_art = flr.renderText("Flicker")
+ascii_art = flr.renderText("AutoJoin GribLand")
 console.print(ascii_art, style="bold green")
+print(f"{GREEN}[+]{RESET} GitHub: {BLUE}https://github.com/SaVok-gybe173{RESET}")
+print(f"{GREEN}[+]{RESET} {BLUE}https://github.com/SaVok-gybe173/AutoJoin{RESET}")
 
 users: list[TypedDictInfoProcess] = []  # список окон с Gribland
 user: int = 0                           # Индекс
