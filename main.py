@@ -55,27 +55,22 @@ config = configparser.ConfigParser()
 config_standart = """
 [SETTINGS]
 time_turnaround = 0.3
-time = 0.05     // время после каждой операции
+time = 0.1      // время после каждой операции
 start_stop = 1  // кнопка для запуска/остановки
-position1 = 8   // кнопка для настройки начальной позиции
-position2 = 9   // кнопка для настройки конечно позиции
+is_save = yes   // работа изменение кординат
 stop = f7       // экстренная остановка
-alignment = 2   // для выравнивание
 
-[POSITION1]
-time = 0.1
-    // кординаты
-x = 0.5
+[POSITION1] // начало играть
+x = 0.5 // кординаты
 y = 0.5
 count = 1 // количество нажатий
+key = 8
 
 [POSITION2]
-time = 0.1
-    // кординаты
-x = 0.4
+x = 0.4 // кординаты
 y = 0.4
 count = 1 // количество нажатий
-
+key = 9
 """
 
 def loads():
@@ -163,7 +158,7 @@ def updatePath():
 def turnaround(hwnd) -> None:
     # Если окно свёрнуто — разворачиваем
     if win32gui.IsIconic(hwnd):
-        print("Окно свёрнуто, разворачиваю...")
+        print(f"{GREEN}[+]{RESET} Окно свёрнуто, разворачиваю...")
         win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)   # SW_RESTORE = 9
         win32gui.SetForegroundWindow(hwnd)
         time.sleep(0.3)  # даём время на отрисовку
@@ -194,30 +189,25 @@ def scrin():
     else:
         _is = turnaround(hwnd)
         img = capture_window_printwindow(hwnd)
-        img.save("screenshot_window.png")
+        img.save("screenshot.png")
         if _is:
             minimize_back(hwnd)
 
 class Working:
     mouse = Controller()
+    stop_flag = True
+    while_flag = True
 
-    def alignment():
-        global stop_flag
-        stop_flag = True
-        mouse.press(Button.left)
-        time.sleep(_time)
-        mouse.position = position1
-        time.sleep(_time)
-        mouse.release(Button.left)
-        print(f"Клавиша {key_alignment} нажата, выравнивание...")
-        keyboard.add_hotkey(key_alignment, alignment)
+    def __init__(self):
+        self.time = config.getfloat("SETTINGS", "time", fallback=0.1)
+
 
     def _POSITION2(self):
         global position2
         position2 = self.mouse.position
         config.set('POSITION2', 'x', str(position2[0]))
         config.set('POSITION2', 'y', str(position2[1]))
-        print(f"Клавиша {config.get("POSITION2", "key", fallback="9")} нажата...")
+        print(f"{GREEN}[+]{RESET} Клавиша {config.get("POSITION2", "key", fallback="9")} нажата...")
     keyboard.add_hotkey(config.get("POSITION2", "key", fallback="9"), _POSITION2)
 
     def _POSITION1(self):
@@ -225,36 +215,38 @@ class Working:
         position1 = self.mouse.position
         config.set('POSITION1', 'x', str(position1[0]))
         config.set('POSITION1', 'y', str(position1[1]))
-        print(f"Клавиша {config.get("POSITION1", "key", fallback="8")} нажата...")
+        print(f"{GREEN}[+]{RESET} Клавиша {config.get("POSITION1", "key", fallback="8")} нажата...")
     keyboard.add_hotkey(config.get("POSITION1", "key", fallback="8"), _POSITION1)
 
-    def on_esc():
-        global while_flag
-        while_flag = not while_flag
-        print(f"Клавиша {config.get("POSITION1", "key", fallback="8")} нажата, останавливаем...")
-    keyboard.add_hotkey(config.get("POSITION1", "key", fallback="8"), on_esc)
+    def click_pos1(self):
+        self.mouse.position = position1
+        time.sleep(self.time)
+        self.mouse.click(Button.left, config.getint("POSITION1", "count", fallback=1), )
+        time.sleep(self.time)
 
-    def on_start():
-        global stop_flag
-        stop_flag = not stop_flag
-        print(f"Клавиша {start_stop} нажата...")
-    keyboard.add_hotkey(start_stop, on_start)
+    def click_pos2(self):
+        self.mouse.position = position2
+        time.sleep(self.time)
+        self.mouse.click(Button.left, config.getint("POSITION2", "count", fallback=1))
+        time.sleep(self.time)
+
+    def on_esc(self):
+        self.while_flag = not self.while_flag
+        print(f"{GREEN}[+]{RESET} Клавиша {config.get("SETTINGS", "stop", fallback="8")} нажата, останавливаем...")
+    keyboard.add_hotkey(config.get("SETTINGS", "stop", fallback="8"), on_esc)
+
+    def on_start(self):
+        self.stop_flag = not self.stop_flag
+        print(f"{GREEN}[+]{RESET} Клавиша {config.get("SETTINGS", "stop", fallback="8")} нажата, работа: {not self.stop_flag}... ")
+    keyboard.add_hotkey(config.get("SETTINGS", "stop", fallback="8"), on_start)
 
     def start(self):
         global config
 
-        while while_flag:
+        while self.while_flag:
             _time = config.getfloat("SETTINGS", "time", fallback=0.1)
-            if not stop_flag:
-                self.mouse.position = position1
-                time.sleep(_time)
-                self.mouse.click(Button.left, count1)
-                time.sleep(_time)
-                
-                self.mouse.position = position2
-                time.sleep(_time)
-                self.mouse.click(Button.left, count2)
-                time.sleep(_time)
+            if not self.stop_flag:
+                pass
 
 def main():
     global MAIN_PATH
@@ -270,6 +262,7 @@ def main():
     print(f"{GREEN}[+]{RESET} Скрипт для автоматического захода на сервера GribLand")
 
     updateUsers()
+    updatePath()
 
     scrin()
 
