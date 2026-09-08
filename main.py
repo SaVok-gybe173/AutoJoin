@@ -31,28 +31,18 @@ class TypedDictInfoProcess(TypedDict):
 
 class MoneyHighlighter(Highlighter):
     def highlight(self, text):
-       for match in re.finditer(r'/', text.plain):
-           text.stylize("bold blue", match.start(), match.end())
-       for match in re.finditer(r'\\', text.plain):
-           text.stylize("bold blue", match.start(), match.end())
+        for match in re.finditer(r'/', text.plain):
+            text.stylize("bold blue", match.start(), match.end())
+        for match in re.finditer(r'\\', text.plain):
+            text.stylize("bold blue", match.start(), match.end())
 
 MAIN_PATH = 'data'
-
-if not os.path.isdir(MAIN_PATH): os.mkdir(MAIN_PATH)
 
 RED = "\033[31m"
 GREEN = "\033[32m"
 YELLOW = "\033[33m"
 BLUE = "\033[34m"
 RESET = "\033[0m"  # Сбрасываем цвет
-
-console = Console(highlighter=MoneyHighlighter())
-flr = Figlet(font='slant')  # Более стильный шрифт
-ascii_art = flr.renderText("AutoJoin GribLand")
-console.print(ascii_art, style="bold green")
-print(f"{GREEN}[+]{RESET} GitHub: {BLUE}https://github.com/SaVok-gybe173{RESET}")
-print(f"{GREEN}[+]{RESET} {BLUE}https://github.com/SaVok-gybe173/AutoJoin{RESET}")
-print(f"{GREEN}[+]{RESET} Скрипт для автоматического захода на сервера GribLand")
 
 users: list[TypedDictInfoProcess] = []  # список окон с Gribland
 user: int = 0                           # Индекс
@@ -91,7 +81,7 @@ def updateUsers():
             users.append({"hwnd": win['hwnd'], "server": mass[-2], "user": mass[-1], "title": win['title'], "pid": win["pid"], "_class": win['_class']})
             
     if len(users) == 0:
-        print(f"{RED}[-]{RESET} Не найден ни одино активное окно")
+        print(f"{RED}[-]{RESET} Не найден ни одного активного окна")
     elif len(users) == 1:
         print()
         user = 0
@@ -152,4 +142,20 @@ def scrin():
         img.save("screenshot_window.png")
         if _is:
             minimize_back(hwnd)
-scrin()
+
+def main():
+    global MAIN_PATH
+    if not os.path.isdir(MAIN_PATH): os.mkdir(MAIN_PATH)
+
+    console = Console(highlighter=MoneyHighlighter())
+    flr = Figlet(font='slant')  # Более стильный шрифт
+    ascii_art = flr.renderText("AutoJoin GribLand")
+    console.print(ascii_art, style="bold green")
+    print(f"{GREEN}[+]{RESET} GitHub: {BLUE}https://github.com/SaVok-gybe173{RESET}")
+    print(f"{GREEN}[+]{RESET} {BLUE}https://github.com/SaVok-gybe173/AutoJoin{RESET}")
+    print(f"{GREEN}[+]{RESET} Скрипт для автоматического захода на сервера GribLand")
+
+    scrin()
+
+if __name__ == "__main__":
+    main()
