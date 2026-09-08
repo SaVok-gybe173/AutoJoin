@@ -52,6 +52,7 @@ ascii_art = flr.renderText("AutoJoin GribLand")
 console.print(ascii_art, style="bold green")
 print(f"{GREEN}[+]{RESET} GitHub: {BLUE}https://github.com/SaVok-gybe173{RESET}")
 print(f"{GREEN}[+]{RESET} {BLUE}https://github.com/SaVok-gybe173/AutoJoin{RESET}")
+print(f"{GREEN}[+]{RESET} Скрипт для автоматического захода на сервера GribLand")
 
 users: list[TypedDictInfoProcess] = []  # список окон с Gribland
 user: int = 0                           # Индекс
