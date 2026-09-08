@@ -91,19 +91,23 @@ def updatePath():
         dirs.add(i['server'])
 
     for i in dirs:
-        server = os.path.join(MAIN_PATH, "i")
+        server = os.path.join(MAIN_PATH, i)
         if not os.path.isdir(server): os.mkdir(server)
         if not os.path.isdir(imej := os.path.join(server, "imeg")): os.mkdir(imej)
         if not os.path.isdir(logs := os.path.join(server, "logs")): os.mkdir(logs)
-
+        if not os.path.isdir(lib := os.path.join(server, "lib")): os.mkdir(lib)
+        if not os.path.isfile(POSITION1 := os.path.join(server, "POSITION1.png")):
+            with open(POSITION1, 'w+b') as f:
+                f.write(b"")
 
 def turnaround(hwnd) -> None:
+    global config
     # Если окно свёрнуто — разворачиваем
     if win32gui.IsIconic(hwnd):
         print(f"{GREEN}[+]{RESET} Окно свёрнуто, разворачиваю...")
         win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)   # SW_RESTORE = 9
         win32gui.SetForegroundWindow(hwnd)
-        time.sleep(0.3)  # даём время на отрисовку
+        time.sleep(config.getfloat("SETTINGS", "time_turnaround", fallback=0.4))  # даём время на отрисовку
         return True
     return False
 
@@ -112,18 +116,47 @@ def minimize_back(hwnd):
     win32gui.ShowWindow(hwnd, win32con.SW_MINIMIZE)
 
 def capture_window_printwindow(hwnd):
+    # Получаем размеры клиентской области окна
     rect = win32gui.GetClientRect(hwnd)
-    left, top = win32gui.ClientToScreen(hwnd, (rect[0], rect[1]))
-    right, bottom = win32gui.ClientToScreen(hwnd, (rect[2], rect[3]))
-    width = right - left
-    height = bottom - top
-    return pyautogui.screenshot(region=(left, top, width, height))
+    width = rect[2] - rect[0]
+    height = rect[3] - rect[1]
+
+    # Создаём контекст устройства для окна
+    hwnd_dc = win32gui.GetWindowDC(hwnd)
+    # Создаём совместимый DC для рисования в памяти
+    mfc_dc = win32ui.CreateDCFromHandle(hwnd_dc)
+    save_dc = mfc_dc.CreateCompatibleDC()
+
+    # Создаём битмап нужного размера
+    bitmap = win32ui.CreateBitmap()
+    bitmap.CreateCompatibleBitmap(mfc_dc, width, height)
+    save_dc.SelectObject(bitmap)
+
+    # Используем PrintWindow для принудительной отрисовки окна в наш DC
+    # Флаг PW_CLIENTONLY = 0x00000001 означает, что рисуем только клиентскую область
+    result = ctypes.windll.user32.PrintWindow(hwnd, save_dc.GetSafeHdc(), 0x00000001)
+    if result == 0:
+        print("PrintWindow не удалась, возможно, окно не поддерживает эту операцию.")
+
+    # Конвертируем битмап в PIL Image
+    bmpinfo = bitmap.GetInfo()
+    bmpstr = bitmap.GetBitmapBits(True)
+    img = Image.frombuffer('RGB', (bmpinfo['bmWidth'], bmpinfo['bmHeight']), bmpstr, 'raw', 'BGRX', 0, 1)
+
+    # Освобождаем ресурсы
+    win32gui.DeleteObject(bitmap.GetHandle())
+    save_dc.DeleteDC()
+    mfc_dc.DeleteDC()
+    win32gui.ReleaseDC(hwnd, hwnd_dc)
+
+    return img
 
 
 def scrin():
     global users, user
     if not users:
         return
+    
     hwnd = win32gui.FindWindow(user['_class'], user['title'])
     if hwnd == 0:
         print(f"{RED}[-]{RESET} Окно не найдено")
@@ -131,7 +164,8 @@ def scrin():
     else:
         _is = turnaround(hwnd)
         img = capture_window_printwindow(hwnd)
-        img.save("screenshot.png")
+        if img:
+            img.save("screenshot.png")
         if _is:
             minimize_back(hwnd)
 
@@ -205,6 +239,7 @@ def main():
 
     updateUsers()
     updatePath()
+    updateUser()
 
     scrin()
 
