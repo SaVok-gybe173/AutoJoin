@@ -45,7 +45,7 @@ BLUE = "\033[34m"
 RESET = "\033[0m"  # Сбрасываем цвет
 
 users: list[TypedDictInfoProcess] = []  # список окон с Gribland
-user: int = 0                           # Индекс
+user: MoneyHighlighter | None = None    # пользователь
 
 def get_detailed_windows() -> list[TypedDictInfoProcess]:
     """Возвращает список окон с их HWND, заголовком, классом и PID процесса."""
@@ -79,12 +79,17 @@ def updateUsers():
         if len(mass := title.split('|')) == 3 and mass[0] == "GribLand":
             print(f"{GREEN}[+]{RESET} Найден игрок {mass[-1]} на сервере {mass[-2]}, HWND:{win['hwnd']}")
             users.append({"hwnd": win['hwnd'], "server": mass[-2], "user": mass[-1], "title": win['title'], "pid": win["pid"], "_class": win['_class']})
-            
     if len(users) == 0:
-        print(f"{RED}[-]{RESET} Не найден ни одного активного окна")
+            print(f"{RED}[-]{RESET} Не найден ни одного активного окна")
+
+def updateUser():
+    global user, users
+    updateUsers()
+    if len(users) == 0:
+        user = None
     elif len(users) == 1:
         print()
-        user = 0
+        user = users[0]
     else:
         while True:
             print()
@@ -99,11 +104,9 @@ def updateUsers():
             except:
                 continue
 
-            user = num-1
+            user = users[num-1]
             print(f"{GREEN}[+]{RESET} Выбран игрок {users[num]['user']} на сервере {users[num]['server']}, HWND:{users[num]['hwnd']}")
             break
-
-updateUsers()
 
 def turnaround(hwnd) -> None:
     # Если окно свёрнуто — разворачиваем
@@ -132,7 +135,7 @@ def scrin():
     global users, user
     if not users:
         return
-    hwnd = win32gui.FindWindow(users[0]['_class'], users[0]['title'])
+    hwnd = win32gui.FindWindow(user['_class'], user['title'])
     if hwnd == 0:
         print(f"{RED}[-]{RESET} Окно не найдено")
         updateUsers()
@@ -154,6 +157,8 @@ def main():
     print(f"{GREEN}[+]{RESET} GitHub: {BLUE}https://github.com/SaVok-gybe173{RESET}")
     print(f"{GREEN}[+]{RESET} {BLUE}https://github.com/SaVok-gybe173/AutoJoin{RESET}")
     print(f"{GREEN}[+]{RESET} Скрипт для автоматического захода на сервера GribLand")
+
+    updateUsers()
 
     scrin()
 
