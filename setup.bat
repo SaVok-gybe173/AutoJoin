@@ -1,0 +1,1 @@
+pyinstaller --add-data ".venv\Lib\site-packages\pyfiglet\fonts;pyfiglet/fonts" --name AutoJoin --icon="NONE" --clean main.py
