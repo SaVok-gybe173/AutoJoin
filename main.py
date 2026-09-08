@@ -81,7 +81,7 @@ def loads():
     global config, config_name, config_standart
     if not os.path.isfile(config_name):
         with open(config_name, 'w', encoding='utf-8') as f: f.write(config_standart)
-    config.read_file(config_name)
+    config.read(config_name, "utf-8")
     
 
 def get_detailed_windows() -> list[TypedDictInfoProcess]:
