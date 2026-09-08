@@ -9,6 +9,7 @@ from PIL import Image
 import win32gui
 import win32ui
 import win32con
+import keyboard
 import configparser
 import win32process
 import pyautogui
@@ -196,6 +197,64 @@ def scrin():
         img.save("screenshot_window.png")
         if _is:
             minimize_back(hwnd)
+
+class Working:
+    mouse = Controller()
+
+    def alignment():
+        global stop_flag
+        stop_flag = True
+        mouse.press(Button.left)
+        time.sleep(_time)
+        mouse.position = position1
+        time.sleep(_time)
+        mouse.release(Button.left)
+        print(f"Клавиша {key_alignment} нажата, выравнивание...")
+        keyboard.add_hotkey(key_alignment, alignment)
+
+    def _POSITION2(self):
+        global position2
+        position2 = self.mouse.position
+        config.set('POSITION2', 'x', str(position2[0]))
+        config.set('POSITION2', 'y', str(position2[1]))
+        print(f"Клавиша {config.get("POSITION2", "key", fallback="9")} нажата...")
+    keyboard.add_hotkey(config.get("POSITION2", "key", fallback="9"), _POSITION2)
+
+    def _POSITION1(self):
+        global position1
+        position1 = self.mouse.position
+        config.set('POSITION1', 'x', str(position1[0]))
+        config.set('POSITION1', 'y', str(position1[1]))
+        print(f"Клавиша {config.get("POSITION1", "key", fallback="8")} нажата...")
+    keyboard.add_hotkey(config.get("POSITION1", "key", fallback="8"), _POSITION1)
+
+    def on_esc():
+        global while_flag
+        while_flag = not while_flag
+        print(f"Клавиша {config.get("POSITION1", "key", fallback="8")} нажата, останавливаем...")
+    keyboard.add_hotkey(config.get("POSITION1", "key", fallback="8"), on_esc)
+
+    def on_start():
+        global stop_flag
+        stop_flag = not stop_flag
+        print(f"Клавиша {start_stop} нажата...")
+    keyboard.add_hotkey(start_stop, on_start)
+
+    def start(self):
+        global config
+
+        while while_flag:
+            _time = config.getfloat("SETTINGS", "time", fallback=0.1)
+            if not stop_flag:
+                self.mouse.position = position1
+                time.sleep(_time)
+                self.mouse.click(Button.left, count1)
+                time.sleep(_time)
+                
+                self.mouse.position = position2
+                time.sleep(_time)
+                self.mouse.click(Button.left, count2)
+                time.sleep(_time)
 
 def main():
     global MAIN_PATH
