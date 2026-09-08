@@ -9,6 +9,7 @@ from PIL import Image
 import win32gui
 import win32ui
 import win32con
+import configparser
 import win32process
 import pyautogui
 import ctypes
@@ -46,6 +47,42 @@ RESET = "\033[0m"  # Сбрасываем цвет
 
 users: list[TypedDictInfoProcess] = []  # список окон с Gribland
 user: MoneyHighlighter | None = None    # пользователь
+
+config_name = "settings.ini"
+config = configparser.ConfigParser()
+
+config_standart = """
+[SETTINGS]
+time_turnaround = 0.3
+time = 0.05     // время после каждой операции
+start_stop = 1  // кнопка для запуска/остановки
+position1 = 8   // кнопка для настройки начальной позиции
+position2 = 9   // кнопка для настройки конечно позиции
+stop = f7       // экстренная остановка
+alignment = 2   // для выравнивание
+
+[POSITION1]
+time = 0.1
+// кординаты
+x = 0.5
+y = 0.5
+count = 1 // количество нажатий
+
+[POSITION2]
+time = 0.1
+// кординаты
+x = 0.4
+y = 0.4
+count = 1 // количество нажатий
+
+"""
+
+def loads():
+    global config, config_name, config_standart
+    if not os.path.isfile(config_name):
+        with open(config_name, 'w', encoding='utf-8') as f: f.write(config_standart)
+    config.read_file(config_name)
+    
 
 def get_detailed_windows() -> list[TypedDictInfoProcess]:
     """Возвращает список окон с их HWND, заголовком, классом и PID процесса."""
@@ -108,13 +145,27 @@ def updateUser():
             print(f"{GREEN}[+]{RESET} Выбран игрок {users[num]['user']} на сервере {users[num]['server']}, HWND:{users[num]['hwnd']}")
             break
 
+def updatePath():
+    global users, MAIN_PATH
+
+    dirs = set()
+    for i in users:
+        dirs.add(i['server'])
+
+    for i in dirs:
+        server = os.path.join(MAIN_PATH, "i")
+        if not os.path.isdir(server): os.mkdir(server)
+        if not os.path.isdir(imej := os.path.join(server, "imeg")): os.mkdir(imej)
+        if not os.path.isdir(logs := os.path.join(server, "logs")): os.mkdir(logs)
+
+
 def turnaround(hwnd) -> None:
     # Если окно свёрнуто — разворачиваем
     if win32gui.IsIconic(hwnd):
         print("Окно свёрнуто, разворачиваю...")
         win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)   # SW_RESTORE = 9
         win32gui.SetForegroundWindow(hwnd)
-        time.sleep(0.3)  # даём время на отрисовку (можно увеличить до 0.5)
+        time.sleep(0.3)  # даём время на отрисовку
         return True
     return False
 
@@ -149,6 +200,7 @@ def scrin():
 def main():
     global MAIN_PATH
     if not os.path.isdir(MAIN_PATH): os.mkdir(MAIN_PATH)
+    loads()
 
     console = Console(highlighter=MoneyHighlighter())
     flr = Figlet(font='slant')  # Более стильный шрифт
