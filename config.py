@@ -38,6 +38,8 @@ YELLOW = "\033[33m"
 BLUE = "\033[34m"
 RESET = "\033[0m"  # Сбрасываем цвет
 
+screenshot_save = True
+
 users: list[TypedDictInfoProcess] = []  # список окон с Gribland
 user: MoneyHighlighter | None = None    # пользователь
 
@@ -67,7 +69,7 @@ key = 9
 
 # Модули для кастомизации
 IMPORTMODUL = {
-
+    
 }
 
 def console():

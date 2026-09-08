@@ -8,13 +8,26 @@ import win32con
 import keyboard
 import win32process
 import importlib
+import importlib.util
 import pyautogui
 import time
 import os
 
-def loads_lib():
+def import_lib(name: str) -> None:
     global IMPORTMODUL, user, MAIN_PATH
-    im = os.path.join(MAIN_PATH, user["server"], "lib")
+    file = os.path.join(MAIN_PATH, user["server"], "lib", f"{name}.py")
+    if not os.path.isfile(file):
+        with open(file, 'w', encoding="utf-8") as f:
+            f.write('')
+    try:
+        spec = importlib.util.spec_from_file_location("POSITION1", file)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return getattr(module, name)
+    except Exception as e:
+        print(f"{RED}[-]{RESET} Не удалось загрузить модуль")
+
+def loads_lib():
     IMPORTMODUL
 
 
