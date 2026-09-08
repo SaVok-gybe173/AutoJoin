@@ -1,5 +1,8 @@
 from typing import TypedDict
 from rich.highlighter import Highlighter
+from pyfiglet import Figlet
+from rich.console import Console
+from termcolor import cprint
 
 import configparser
 import ctypes
@@ -61,3 +64,17 @@ y = 0.4
 count = 1 // количество нажатий
 key = 9
 """
+
+# Модули для кастомизации
+IMPORTMODUL = {
+
+}
+
+def console():
+    console = Console(highlighter=MoneyHighlighter())
+    flr = Figlet(font='slant')  # Более стильный шрифт
+    ascii_art = flr.renderText("AutoJoin GribLand")
+    console.print(ascii_art, style="bold green")
+    print(f"{GREEN}[+]{RESET} GitHub: {BLUE}https://github.com/SaVok-gybe173{RESET}")
+    print(f"{GREEN}[+]{RESET} {BLUE}https://github.com/SaVok-gybe173/AutoJoin{RESET}")
+    print(f"{GREEN}[+]{RESET} Скрипт для автоматического захода на сервера GribLand")

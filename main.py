@@ -1,8 +1,5 @@
 from config import *
 from pynput.mouse import Button, Controller
-from pyfiglet import Figlet
-from rich.console import Console
-from termcolor import cprint
 from PIL import Image
 
 import win32gui
@@ -10,9 +7,15 @@ import win32ui
 import win32con
 import keyboard
 import win32process
+import importlib
 import pyautogui
 import time
 import os
+
+def loads_lib():
+    global IMPORTMODUL, user, MAIN_PATH
+    im = os.path.join(MAIN_PATH, user["server"], "lib")
+    IMPORTMODUL
 
 
 def loads():
@@ -20,7 +23,6 @@ def loads():
     if not os.path.isfile(config_name):
         with open(config_name, 'w', encoding='utf-8') as f: f.write(config_standart)
     config.read(config_name, "utf-8")
-    
 
 def get_detailed_windows() -> list[TypedDictInfoProcess]:
     """Возвращает список окон с их HWND, заголовком, классом и PID процесса."""
@@ -47,7 +49,6 @@ def updateUsers():
     Обновеление списка серверов
     """
     global users, user
-    print(f"{GREEN}[+]{RESET} Поиск окна...\n")
     users.clear()
     for win in get_detailed_windows():
         title: str = win['title'].replace(' ', '')
@@ -85,7 +86,6 @@ def updateUser():
 
 def updatePath():
     global users, MAIN_PATH
-
     dirs = set()
     for i in users:
         dirs.add(i['server'])
@@ -163,12 +163,14 @@ def scrin():
         updateUsers()
     else:
         _is = turnaround(hwnd)
-        img = capture_window_printwindow(hwnd)
-        if img:
-            img.save("screenshot.png")
-        if _is:
-            minimize_back(hwnd)
-
+        try:
+            img = capture_window_printwindow(hwnd)
+            if img:
+                img.save("screenshot.png")
+            if _is:
+                minimize_back(hwnd)
+        except Exception as e:
+            print(f"{RED}[-]{RESET} Ошибка {e.__class__}: {e}")
 class Working:
     mouse = Controller()
     stop_flag = True
@@ -220,27 +222,20 @@ class Working:
         global config
 
         while self.while_flag:
-            _time = config.getfloat("SETTINGS", "time", fallback=0.1)
             if not self.stop_flag:
                 pass
 
 def main():
     global MAIN_PATH
     if not os.path.isdir(MAIN_PATH): os.mkdir(MAIN_PATH)
-    loads()
+    console()
+    print()
 
-    console = Console(highlighter=MoneyHighlighter())
-    flr = Figlet(font='slant')  # Более стильный шрифт
-    ascii_art = flr.renderText("AutoJoin GribLand")
-    console.print(ascii_art, style="bold green")
-    print(f"{GREEN}[+]{RESET} GitHub: {BLUE}https://github.com/SaVok-gybe173{RESET}")
-    print(f"{GREEN}[+]{RESET} {BLUE}https://github.com/SaVok-gybe173/AutoJoin{RESET}")
-    print(f"{GREEN}[+]{RESET} Скрипт для автоматического захода на сервера GribLand")
-
-    updateUsers()
     updatePath()
     updateUser()
 
+    loads()
+    
     scrin()
 
 if __name__ == "__main__":
