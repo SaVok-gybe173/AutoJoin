@@ -167,7 +167,7 @@ def capture_window_printwindow(hwnd):
     # Флаг PW_CLIENTONLY = 0x00000001 означает, что рисуем только клиентскую область
     result = ctypes.windll.user32.PrintWindow(hwnd, save_dc.GetSafeHdc(), 0x00000001)
     if result == 0:
-        print("PrintWindow не удалась, возможно, окно не поддерживает эту операцию.")
+        print(f"{RED}[-]{RESET} PrintWindow не удалась, возможно, окно не поддерживает эту операцию.")
 
     # Конвертируем битмап в PIL Image
     bmpinfo = bitmap.GetInfo()
@@ -289,7 +289,7 @@ class Working:
                 pass
 
 def main():
-    global MAIN_PATH
+    global MAIN_PATH, config
     if not os.path.isdir(MAIN_PATH): os.mkdir(MAIN_PATH)
     console()
     print()
@@ -300,6 +300,7 @@ def main():
 
     loads()
     loads_lib()
+    print(f"{f'{BLUE}[+]' if config.getboolean("SETTINGS", "home", fallback=False) else f'{YELLOW}[-]'}{RESET} Замена настроек: {config.getboolean("SETTINGS", "home", fallback=False)}")
     
     scrin()
 
