@@ -164,6 +164,49 @@ def capture_window_printwindow(hwnd):
 
     return img
 
+def image_similarity_percent(img1: Image.Image, img2: Image.Image) -> float:
+    """
+    Сравнивает два PIL.Image объекта и возвращает процент их совпадения.
+
+    Аргументы:
+        img1 (PIL.Image): первое изображение
+        img2 (PIL.Image): второе изображение
+
+    Возвращает:
+        float: процент схожести (0.0 – 100.0)
+    """
+    # Проверка на None
+    if img1 is None or img2 is None:
+        raise ValueError("Изображения не должны быть None")
+
+    # Получаем размеры
+    w1, h1 = img1.size
+    w2, h2 = img2.size
+
+    # Если размеры разные, приводим оба к размеру первого изображения
+    # (можно выбрать любой другой способ, например, к минимальному размеру)
+    if (w1, h1) != (w2, h2):
+        # resample=Image.LANCZOS даёт лучшее качество при изменении размера
+        img2 = img2.resize((w1, h1), Image.LANCZOS)
+        # При необходимости можно также изменить и первое, если хотите другой общий размер
+        # img1 = img1.resize((w1, h1), Image.LANCZOS)
+
+    # Конвертируем в оттенки серого для упрощения сравнения
+    gray1 = img1.convert('L')
+    gray2 = img2.convert('L')
+
+    # Преобразуем в массивы numpy
+    arr1 = np.array(gray1, dtype=np.float32)
+    arr2 = np.array(gray2, dtype=np.float32)
+
+    # Вычисляем среднюю абсолютную разницу (MAD)
+    mad = np.mean(np.abs(arr1 - arr2))
+
+    # Переводим в процент совпадения: 100% при mad=0, 0% при mad=255
+    similarity = max(0.0, 100.0 * (1.0 - mad / 255.0))
+
+    return similarity
+
 
 def scrin():
     global users, user
