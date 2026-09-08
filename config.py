@@ -68,8 +68,37 @@ key = 9
 """
 
 # Модули для кастомизации
+IMPORTMODUL_LIST = [
+    "POSITION1",
+    "POSITION2"
+]
+
 IMPORTMODUL = {
-    
+
+}
+IMPORTMODUL_COD = {
+    "POSITION1":
+    """
+from config import *
+from main import *
+
+def POSITION1(self: Working):
+    global config
+    time.sleep(self.time)
+    self.mouse.click(Button.left, config.getint("POSITION1", "count", fallback=1), )
+    time.sleep(self.time)
+""",
+    "POSITION2":
+    """
+from config import *
+from main import *
+
+def POSITION2(self: Working):
+    global config
+    time.sleep(self.time)
+    self.mouse.click(Button.left, config.getint("POSITION1", "count", fallback=1), )
+    time.sleep(self.time)
+"""
 }
 
 def console():

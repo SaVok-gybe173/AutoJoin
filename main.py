@@ -2,6 +2,7 @@ from config import *
 from pynput.mouse import Button, Controller
 from PIL import Image
 
+import numpy as np
 import win32gui
 import win32ui
 import win32con
@@ -13,22 +14,39 @@ import pyautogui
 import time
 import os
 
+def null(self: "Warning") -> None:
+    pass
+
 def import_lib(name: str) -> None:
-    global IMPORTMODUL, user, MAIN_PATH
+    global IMPORTMODUL_COD, IMPORTMODUL, user, MAIN_PATH
     file = os.path.join(MAIN_PATH, user["server"], "lib", f"{name}.py")
     if not os.path.isfile(file):
         with open(file, 'w', encoding="utf-8") as f:
-            f.write('')
+            if name in IMPORTMODUL_COD:
+                f.write(IMPORTMODUL_COD[name])
+            else:
+                f.write('''
+from config import *\n
+from main import *\n
+\n
+def null(self: "Warning") -> None:\n
+    pass\n
+''')
     try:
         spec = importlib.util.spec_from_file_location("POSITION1", file)
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
+        print(f"{GREEN}[+]{RESET} Модуль {name} успешно загружен ")
         return getattr(module, name)
     except Exception as e:
-        print(f"{RED}[-]{RESET} Не удалось загрузить модуль")
+        
+        print(f"{RED}[-]{RESET} Не удалось загрузить модуль {name} is type {e.__class__}: {e}")
+        return null
 
-def loads_lib():
-    IMPORTMODUL
+def loads_lib() -> None:
+    global IMPORTMODUL_LIST, config, IMPORTMODUL
+    for imp in IMPORTMODUL_LIST:
+        import_lib(config.get(imp, "modul", fallback="null"))
 
 
 def loads():
@@ -227,6 +245,7 @@ def scrin():
                 minimize_back(hwnd)
         except Exception as e:
             print(f"{RED}[-]{RESET} Ошибка {e.__class__}: {e}")
+
 class Working:
     mouse = Controller()
     stop_flag = True
@@ -252,18 +271,6 @@ class Working:
         print(f"{GREEN}[+]{RESET} Клавиша {config.get("POSITION1", "key", fallback="8")} нажата...")
     keyboard.add_hotkey(config.get("POSITION1", "key", fallback="8"), _POSITION1)
 
-    def click_pos1(self):
-        self.mouse.position = position1
-        time.sleep(self.time)
-        self.mouse.click(Button.left, config.getint("POSITION1", "count", fallback=1), )
-        time.sleep(self.time)
-
-    def click_pos2(self):
-        self.mouse.position = position2
-        time.sleep(self.time)
-        self.mouse.click(Button.left, config.getint("POSITION2", "count", fallback=1))
-        time.sleep(self.time)
-
     def on_esc(self):
         self.while_flag = not self.while_flag
         print(f"{GREEN}[+]{RESET} Клавиша {config.get("SETTINGS", "stop", fallback="8")} нажата, останавливаем...")
@@ -287,10 +294,12 @@ def main():
     console()
     print()
 
-    updatePath()
     updateUser()
+    updatePath()
+    
 
     loads()
+    loads_lib()
     
     scrin()
 
