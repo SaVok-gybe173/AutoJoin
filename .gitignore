@@ -216,4 +216,6 @@ __marimo__/
 .streamlit/secrets.toml
 
 data/
+build/
+dist/
 screenshot.png
