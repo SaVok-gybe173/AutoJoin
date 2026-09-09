@@ -31,19 +31,18 @@ def import_lib(name: str) -> Callable:
 from config import *\n
 from main import *\n
 \n
-def null(self: "Warning") -> None:\n
+def null(self: Warning, x, y, width, height) -> None:\n
     pass\n
 ''')
-    try:
-        spec = importlib.util.spec_from_file_location(name, file)
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-        print(f"{GREEN}[+]{RESET} Модуль {name} успешно загружен ")
-        return getattr(module, name)
-    except Exception as e:
-        
-        print(f"{RED}[-]{RESET} Не удалось загрузить модуль {name} is type {e.__class__}: {e}")
-        return null
+    #try:
+    spec = importlib.util.spec_from_file_location(name, file)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    print(f"{GREEN}[+]{RESET} Модуль {name} успешно загружен ")
+    return getattr(module, name)
+    #except Exception as e:
+        #print(f"{RED}[-]{RESET} [{os.path.isfile(file)}]Не удалось загрузить модуль {file} is type {e.__class__}: {e}")
+        #return null
 
 def loads_lib() -> None:
     global IMPORTMODUL_LIST, config, IMPORTMODUL
