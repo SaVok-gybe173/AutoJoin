@@ -55,22 +55,36 @@ config = configparser.ConfigParser()
 config_standart = """
 [SETTINGS]
 time_turnaround = 0.3
-time = 0.1      // время после каждой операции
-start_stop = 1  // кнопка для запуска/остановки
-is_save = yes   // работа изменение кординат
-stop = f7       // экстренная остановка
+time = 0.1      
+start_stop = 1  
+is_save = yes
+stop = f7
+home = no
 
-[POSITION1] // начало играть
-x = 0.5 // кординаты
-y = 0.5
-count = 1 // количество нажатий
+[POSITION1]
+x = 0.3
+y = 0.45
 key = 8
+percent = 80
+modul = POSITION1
 
 [POSITION2]
-x = 0.4 // кординаты
-y = 0.4
-count = 1 // количество нажатий
+x = 0.4
+y = 0.45
 key = 9
+percent = 80
+modul = POSITION2
+
+[POSITION3]
+x = 0.5
+y = 0.6
+key = 0
+percent = 80
+modul = POSITION3 
+
+[NOME]
+comand = /home
+modul = NOME
 """
 
 # Модули для кастомизации
