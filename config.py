@@ -40,11 +40,11 @@ RESET = "\033[0m"  # Сбрасываем цвет
 
 screenshot_save = True
 
-x: int | None = None
-y: int | None = None
+#x: int | None = None
+#y: int | None = None
 
-width: int | None = None
-height: int | None = None
+#width: int | None = None
+#height: int | None = None
 
 users: list[TypedDictInfoProcess] = []  # список окон с Gribland
 user: MoneyHighlighter | None = None    # пользователь
@@ -76,7 +76,8 @@ key = 9
 # Модули для кастомизации
 IMPORTMODUL_LIST = [
     "POSITION1",
-    "POSITION2"
+    "POSITION2",
+    "POSITION3"
 ]
 
 IMPORTMODUL = {

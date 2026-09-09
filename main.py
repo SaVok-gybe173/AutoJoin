@@ -1,23 +1,26 @@
 from config import *
 from pynput.mouse import Button, Controller
 from PIL import Image
+from typing import Callable
 
 import numpy as np
 import win32gui
 import win32ui
 import win32con
 import keyboard
+import struct
 import win32process
 import importlib
 import importlib.util
 import pyautogui
+import pydirectinput
 import time
 import os
 
 def null(self: "Warning") -> None:
     pass
 
-def import_lib(name: str) -> None:
+def import_lib(name: str) -> Callable:
     global IMPORTMODUL_COD, IMPORTMODUL, user, MAIN_PATH
     file = os.path.join(MAIN_PATH, user["server"], "lib", f"{name}.py")
     if not os.path.isfile(file):
@@ -46,7 +49,7 @@ def null(self: "Warning") -> None:\n
 def loads_lib() -> None:
     global IMPORTMODUL_LIST, config, IMPORTMODUL
     for imp in IMPORTMODUL_LIST:
-        import_lib(config.get(imp, "modul", fallback="null"))
+        IMPORTMODUL[imp] = import_lib(config.get(imp, "modul", fallback="null"))
 
 
 def loads():
@@ -148,9 +151,9 @@ def minimize_back(hwnd):
 
 def capture_window_printwindow(hwnd):
     # Получаем размеры клиентской области окна
-    rect = win32gui.GetClientRect(hwnd)
-    width = rect[2] - rect[0]
-    height = rect[3] - rect[1]
+    window_rect = win32gui.GetWindowRect(hwnd)
+    width = window_rect[2] - window_rect[0]
+    height = window_rect[3] - window_rect[1]
 
     # Создаём контекст устройства для окна
     hwnd_dc = win32gui.GetWindowDC(hwnd)
@@ -225,36 +228,58 @@ def image_similarity_percent(img1: Image.Image, img2: Image.Image) -> float:
 
     return similarity
 
+def get_window_rect_real(hwnd):
+    # Используем GetWindowInfo (работает даже для свёрнутых)
+    try:
+        from ctypes import windll, c_int, byref, sizeof, create_string_buffer
+        WINDOWINFO = create_string_buffer(60)
+        windll.user32.GetWindowInfo(hwnd, byref(WINDOWINFO))
+        # парсим структуру (смещения: rcWindow начинается с 20 байта)
+        rect = struct.unpack('llll', WINDOWINFO[20:36])
+        return rect  # (left, top, right, bottom)
+    except:
+        return None
+
 
 def scrin():
-    global users, user, config, x, y, width, height
+    global users, user, config, x, y, width, height, MAIN_PATH, work, IMPORTMODUL
     if not users:
         return
 
     hwnd = win32gui.FindWindow(user['_class'], user['title'])
-    window_rect = win32gui.GetWindowRect(hwnd)
-    x = window_rect[0]      
-    y = window_rect[1]  
-    width = window_rect[2] - window_rect[0]
-    height = window_rect[3] - window_rect[1]
 
     if hwnd == 0:
         print(f"{RED}[-]{RESET} Окно не найдено")
         updateUsers()
     else:
-        _is = turnaround(hwnd)
-        try:
+            _is = turnaround(hwnd)
+        #try:
+
+            rect = get_window_rect_real(hwnd)
+            if rect:
+                x, y = rect[0], rect[1]
+                width = rect[2] - rect[0]
+                height = rect[3] - rect[1]
+
+            #print(width, height, normal_rect)
             img = capture_window_printwindow(hwnd)
             if config.getboolean("SETTINGS", "is_save", fallback=False):
                 img.save("screenshot.png")
+            
+            if image_similarity_percent(img, Image.open(os.path.join(MAIN_PATH, user["server"], f"{config.get("POSITION3", "modul", fallback="POSITION3")}.png"))) >= config.getint("POSITION3", "percent", fallback=80):
+                IMPORTMODUL[config.get("POSITION3", "modul", fallback="POSITION3")](work, x, y, width, height)
+
+            if image_similarity_percent(img, Image.open(os.path.join(MAIN_PATH, user["server"], f"{config.get("POSITION1", "modul", fallback="POSITION1")}.png"))) >= config.getint("POSITION1", "percent", fallback=80):
+                IMPORTMODUL[config.get("POSITION1", "modul", fallback="POSITION1")](work, x, y, width, height)
+
             if _is:
                 minimize_back(hwnd)
-        except Exception as e:
-            print(f"{RED}[-]{RESET} Ошибка {e.__class__}: {e}")
+        #except Exception as e:
+            #print(f"{RED}[-]{RESET} Ошибка {e.__class__}: {e}")
 
 class Working:
     mouse = Controller()
-    stop_flag = True
+    stop_flag = False
     while_flag = True
 
     def __init__(self):
@@ -292,10 +317,11 @@ class Working:
 
         while self.while_flag:
             if not self.stop_flag:
-                pass
+                scrin()
+                time.sleep(120)
 
 def main():
-    global MAIN_PATH, config
+    global MAIN_PATH, config, work
     if not os.path.isdir(MAIN_PATH): os.mkdir(MAIN_PATH)
     console()
     print()
@@ -307,8 +333,9 @@ def main():
     loads()
     loads_lib()
     print(f"{f'{BLUE}[+]' if config.getboolean("SETTINGS", "home", fallback=False) else f'{YELLOW}[-]'}{RESET} Замена настроек: {config.getboolean("SETTINGS", "home", fallback=False)}")
-    
-    scrin()
+
+    work = Working()
+    work.start()
 
 if __name__ == "__main__":
     main()
