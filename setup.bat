@@ -1,1 +1,1 @@
-pyinstaller --uac-admin --add-data ".venv\Lib\site-packages\pyfiglet\fonts;pyfiglet/fonts" --name AutoJoin --icon="NONE" --clean main.py
+pyinstaller --uac-admin --add-data ".venv\Lib\site-packages\pyfiglet\fonts;pyfiglet/fonts" --add-data "SendInput.py;." --hidden-import SendInput --icon="NONE" --hidden-import main --name AutoJoin --clean main.py
