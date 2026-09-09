@@ -277,11 +277,13 @@ def scrin():
                 IMPORTMODUL[config.get("POSITION3", "modul", fallback="POSITION3")](work, x, y, width, height)
                 IMPORTMODUL[config.get("POSITION1", "modul", fallback="POSITION1")](work, x, y, width, height)
                 IMPORTMODUL[config.get("POSITION2", "modul", fallback="POSITION2")](work, x, y, width, height)
+                time.sleep(15)
                 print(f"{BLUE}[+]{RESET} Совпадение: {pr}%")
 
             if (pr := image_similarity_percent(img, Image.open(os.path.join(MAIN_PATH, user["server"], f"{config.get("POSITION1", "modul", fallback="POSITION1")}.png")))) >= config.getint("POSITION1", "percent", fallback=90):
                 IMPORTMODUL[config.get("POSITION1", "modul", fallback="POSITION1")](work, x, y, width, height)
                 IMPORTMODUL[config.get("POSITION2", "modul", fallback="POSITION2")](work, x, y, width, height)
+                time.sleep(15)
                 print(f"{BLUE}[+]{RESET} Совпадение: {pr}%")
 
             if _is:
