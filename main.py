@@ -34,15 +34,15 @@ from main import *\n
 def null(self: Warning, x, y, width, height) -> None:\n
     pass\n
 ''')
-    #try:
-    spec = importlib.util.spec_from_file_location(name, file)
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    print(f"{GREEN}[+]{RESET} Модуль {name} успешно загружен ")
-    return getattr(module, name)
-    #except Exception as e:
-        #print(f"{RED}[-]{RESET} [{os.path.isfile(file)}]Не удалось загрузить модуль {file} is type {e.__class__}: {e}")
-        #return null
+    try:
+        spec = importlib.util.spec_from_file_location(name, file)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        print(f"{GREEN}[+]{RESET} Модуль {name} успешно загружен ")
+        return getattr(module, name)
+    except Exception as e:
+        print(f"{RED}[-]{RESET} [{os.path.isfile(file)}]Не удалось загрузить модуль {file} is type {e.__class__}: {e}")
+        return null
 
 def loads_lib() -> None:
     global IMPORTMODUL_LIST, config, IMPORTMODUL
@@ -273,12 +273,16 @@ def scrin():
             if config.getboolean("SETTINGS", "is_save", fallback=False):
                 img.save("screenshot.png")
             
-            if image_similarity_percent(img, Image.open(os.path.join(MAIN_PATH, user["server"], f"{config.get("POSITION3", "modul", fallback="POSITION3")}.png"))) >= config.getint("POSITION3", "percent", fallback=80):
+            if (pr := image_similarity_percent(img, Image.open(os.path.join(MAIN_PATH, user["server"], f"{config.get("POSITION3", "modul", fallback="POSITION3")}.png")))) >= config.getint("POSITION3", "percent", fallback=90):
                 IMPORTMODUL[config.get("POSITION3", "modul", fallback="POSITION3")](work, x, y, width, height)
-
-            if image_similarity_percent(img, Image.open(os.path.join(MAIN_PATH, user["server"], f"{config.get("POSITION1", "modul", fallback="POSITION1")}.png"))) >= config.getint("POSITION1", "percent", fallback=80):
                 IMPORTMODUL[config.get("POSITION1", "modul", fallback="POSITION1")](work, x, y, width, height)
                 IMPORTMODUL[config.get("POSITION2", "modul", fallback="POSITION2")](work, x, y, width, height)
+                print(f"{BLUE}[+]{RESET} Совпадение: {pr}%")
+
+            if (pr := image_similarity_percent(img, Image.open(os.path.join(MAIN_PATH, user["server"], f"{config.get("POSITION1", "modul", fallback="POSITION1")}.png")))) >= config.getint("POSITION1", "percent", fallback=90):
+                IMPORTMODUL[config.get("POSITION1", "modul", fallback="POSITION1")](work, x, y, width, height)
+                IMPORTMODUL[config.get("POSITION2", "modul", fallback="POSITION2")](work, x, y, width, height)
+                print(f"{BLUE}[+]{RESET} Совпадение: {pr}%")
 
             if _is:
                 minimize_back(hwnd)
