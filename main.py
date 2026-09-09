@@ -227,11 +227,17 @@ def image_similarity_percent(img1: Image.Image, img2: Image.Image) -> float:
 
 
 def scrin():
-    global users, user
+    global users, user, config, x, y, width, height
     if not users:
         return
-    
+
     hwnd = win32gui.FindWindow(user['_class'], user['title'])
+    window_rect = win32gui.GetWindowRect(hwnd)
+    x = window_rect[0]      
+    y = window_rect[1]  
+    width = window_rect[2] - window_rect[0]
+    height = window_rect[3] - window_rect[1]
+
     if hwnd == 0:
         print(f"{RED}[-]{RESET} Окно не найдено")
         updateUsers()
@@ -239,7 +245,7 @@ def scrin():
         _is = turnaround(hwnd)
         try:
             img = capture_window_printwindow(hwnd)
-            if img:
+            if config.getboolean("SETTINGS", "is_save", fallback=False):
                 img.save("screenshot.png")
             if _is:
                 minimize_back(hwnd)
