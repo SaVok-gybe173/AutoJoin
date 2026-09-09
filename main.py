@@ -95,7 +95,17 @@ def updateUser():
     global user, users
     updateUsers()
     if len(users) == 0:
-        user = None
+        print(f"\n{BLUE}[-]{RESET} Запустите GribLand...")
+        while True:
+            updateUsers()
+            if len(users) == 0:
+                time.sleep(5)
+            #else:
+                #print(f"{GREEN}[+]{RESET}")
+            else:
+                user = users[0]
+                print(f"{GREEN}[+]{RESET} Выбран игрок {users[num]['user']} на сервере {users[num]['server']}, HWND:{users[num]['hwnd']}")
+                break
     elif len(users) == 1:
         print()
         user = users[0]
@@ -251,9 +261,8 @@ def scrin():
         print(f"{RED}[-]{RESET} Окно не найдено")
         updateUsers()
     else:
+        try:
             _is = turnaround(hwnd)
-        #try:
-
             rect = get_window_rect_real(hwnd)
             if rect:
                 x, y = rect[0], rect[1]
@@ -274,8 +283,8 @@ def scrin():
 
             if _is:
                 minimize_back(hwnd)
-        #except Exception as e:
-            #print(f"{RED}[-]{RESET} Ошибка {e.__class__}: {e}")
+        except Exception as e:
+            print(f"{RED}[-]{RESET} Ошибка {e.__class__}: {e}")
 
 class Working:
     mouse = Controller()
@@ -328,7 +337,6 @@ def main():
 
     updateUser()
     updatePath()
-    
 
     loads()
     loads_lib()
