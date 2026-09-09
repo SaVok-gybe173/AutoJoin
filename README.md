@@ -4,6 +4,14 @@
 
 ---
 
+## Готовая сборка для запуска 
+
+1. **Скачайте AutoJoin-win64-x86.zip:**
+    https://github.com/SaVok-gybe173/AutoJoin/releases/tag/v1.0.0
+    
+2. **Запустите exe:**
+    AutoJoin.exe
+
 ## Ручная установка и запуск
 
 1. **Клонируйте репозиторий:**
