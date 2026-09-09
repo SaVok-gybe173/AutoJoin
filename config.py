@@ -107,7 +107,7 @@ from SendInput import send_input_click
 def POSITION2(self: Working, x, y, width, height):
     global config
     time.sleep(self.time)
-    self.mouse.position = (x+config.getfloat("POSITION2", "x", fallback=0.4)*width, y+config.getfloat("POSITION2", "y", fallback=0.4)*height)
+    self.mouse.position = (x+config.getfloat("POSITION2", "x", fallback=0.4)*width, y+config.getfloat("POSITION2", "y", fallback=0.45)*height)
     time.sleep(self.time)
     send_input_click()
     time.sleep(self.time)
