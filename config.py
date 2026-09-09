@@ -108,9 +108,9 @@ def POSITION1(self: Working, x, y, width, height):
     global config
     time.sleep(self.time)
     self.mouse.position = (x+config.getfloat("POSITION1", "x", fallback=0.3)*width, y+config.getfloat("POSITION1", "y", fallback=0.45)*height)
-    time.sleep(self.time+1)
+    time.sleep(self.time)
     send_input_click()
-    time.sleep(self.time+1)
+    time.sleep(self.time)
 """,
     "POSITION2":
     """
