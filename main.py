@@ -13,7 +13,6 @@ import win32process
 import importlib
 import importlib.util
 import pyautogui
-import pydirectinput
 import time
 import os
 
