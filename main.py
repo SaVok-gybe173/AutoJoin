@@ -35,7 +35,7 @@ def null(self: "Warning") -> None:\n
     pass\n
 ''')
     try:
-        spec = importlib.util.spec_from_file_location("POSITION1", file)
+        spec = importlib.util.spec_from_file_location(name, file)
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         print(f"{GREEN}[+]{RESET} Модуль {name} успешно загружен ")
@@ -48,7 +48,7 @@ def null(self: "Warning") -> None:\n
 def loads_lib() -> None:
     global IMPORTMODUL_LIST, config, IMPORTMODUL
     for imp in IMPORTMODUL_LIST:
-        IMPORTMODUL[imp] = import_lib(config.get(imp, "modul", fallback="null"))
+        IMPORTMODUL[imp] = import_lib(config.get(imp, "modul", fallback=imp))
 
 
 def loads():
