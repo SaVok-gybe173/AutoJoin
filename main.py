@@ -16,7 +16,7 @@ import pyautogui
 import time
 import os
 
-def null(self: "Warning") -> None:
+def null(self: "Working", x, y, width, height) -> None:
     pass
 
 def import_lib(name: str) -> Callable:
@@ -270,6 +270,7 @@ def scrin():
 
             if image_similarity_percent(img, Image.open(os.path.join(MAIN_PATH, user["server"], f"{config.get("POSITION1", "modul", fallback="POSITION1")}.png"))) >= config.getint("POSITION1", "percent", fallback=80):
                 IMPORTMODUL[config.get("POSITION1", "modul", fallback="POSITION1")](work, x, y, width, height)
+                IMPORTMODUL[config.get("POSITION2", "modul", fallback="POSITION2")](work, x, y, width, height)
 
             if _is:
                 minimize_back(hwnd)

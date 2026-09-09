@@ -88,22 +88,28 @@ IMPORTMODUL_COD = {
     """
 from config import *
 from main import *
+from SendInput import send_input_click
 
-def POSITION1(self: Working):
+def POSITION1(self: Working, x, y, width, height):
     global config
     time.sleep(self.time)
-    self.mouse.click(Button.left, config.getint("POSITION1", "count", fallback=1), )
-    time.sleep(self.time)
+    self.mouse.position = (x+config.getfloat("POSITION1", "x", fallback=0.3)*width, y+config.getfloat("POSITION1", "y", fallback=0.45)*height)
+    time.sleep(self.time+1)
+    send_input_click()
+    time.sleep(self.time+1)
 """,
     "POSITION2":
     """
 from config import *
 from main import *
+from SendInput import send_input_click
 
-def POSITION2(self: Working):
+def POSITION2(self: Working, x, y, width, height):
     global config
     time.sleep(self.time)
-    self.mouse.click(Button.left, config.getint("POSITION1", "count", fallback=1), )
+    self.mouse.position = (x+config.getfloat("POSITION2", "x", fallback=0.4)*width, y+config.getfloat("POSITION2", "y", fallback=0.4)*height)
+    time.sleep(self.time)
+    send_input_click()
     time.sleep(self.time)
 """
 }
